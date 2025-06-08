@@ -1,0 +1,6 @@
+{
+  "liveServer.settings.root": "/",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
