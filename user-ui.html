@@ -151,7 +151,7 @@ function isValidLineUserId(uid) {
   return typeof uid === 'string' && /^U[a-zA-Z0-9]{9,32}$/.test(uid);
 }
 
-// ถ้ามี lineUserId ใน URL และผู้ใช้ล็อกอินอยู่ ให้เชื่อมบัญชีอัตโนมัติ
+// ถ้ามี lineUserId ใน URL และผู้ใช้ล็อกอินอยู่ ให้เชื่อมบัญชีอัตโนมัติและดึงข้อมูลแต้ม
 auth.onAuthStateChanged(async (user) => {
   if (user && lineUserId) {
     const statusDiv = document.getElementById('linkLineStatus');
@@ -161,9 +161,28 @@ auth.onAuthStateChanged(async (user) => {
       return;
     }
     try {
+      // อัปเดต lineUserId ใน Firestore
       await db.collection('users').doc(user.uid).update({ lineUserId });
       statusDiv.innerText = 'เชื่อมบัญชี LINE อัตโนมัติสำเร็จ (LINE User ID: ' + lineUserId + ')';
       statusDiv.style.color = 'green';
+
+      // ดึงข้อมูลแต้มจาก Realtime Database
+      const pointsSnap = await rtdb.ref('users/' + lineUserId + '/points').once('value');
+      const points = pointsSnap.val();
+      if (points !== null) {
+        document.getElementById('userpoints').innerText = points;
+      } else {
+        document.getElementById('userpoints').innerText = 'ไม่มีข้อมูลแต้ม';
+      }
+
+      // ดึงข้อมูลโปรไฟล์จาก Realtime Database (ถ้ามี)
+      const profileSnap = await rtdb.ref('users/' + lineUserId + '/profile').once('value');
+      const profile = profileSnap.val();
+      if (profile) {
+        if (profile.displayName) document.getElementById('username').innerText = profile.displayName;
+        if (profile.email) document.getElementById('useremail').innerText = profile.email;
+      }
+
     } catch (err) {
       statusDiv.innerText = 'เกิดข้อผิดพลาด: ' + err.message;
       statusDiv.style.color = 'red';
