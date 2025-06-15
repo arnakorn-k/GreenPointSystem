@@ -151,7 +151,7 @@ function isValidLineUserId(uid) {
   return typeof uid === 'string' && /^U[a-zA-Z0-9]{9,32}$/.test(uid);
 }
 
-// ถ้ามี lineUserId ใน URL และผู้ใช้ล็อกอินอยู่ ให้เชื่อมบัญชีอัตโนมัติและดึงข้อมูลแต้ม
+// ถ้ามี lineUserId ใน URL และผู้ใช้ล็อกอินอยู่ ให้เชื่อมบัญชีอัตโนมัติและบวกแต้มรวมกัน
 auth.onAuthStateChanged(async (user) => {
   if (user && lineUserId) {
     const statusDiv = document.getElementById('linkLineStatus');
@@ -161,21 +161,30 @@ auth.onAuthStateChanged(async (user) => {
       return;
     }
     try {
-      // อัปเดต lineUserId ใน Firestore
+      // 1. อัปเดต lineUserId ใน Firestore
       await db.collection('users').doc(user.uid).update({ lineUserId });
-      statusDiv.innerText = 'เชื่อมบัญชี LINE อัตโนมัติสำเร็จ (LINE User ID: ' + lineUserId + ')';
+
+      // 2. ดึงแต้มจาก Firestore (เว็บ)
+      const userDoc = await db.collection('users').doc(user.uid).get();
+      const webPoints = userDoc.data().points || 0;
+
+      // 3. ดึงแต้มจาก Realtime Database (LINE)
+      const pointsSnap = await rtdb.ref('users/' + lineUserId + '/points').once('value');
+      const linePoints = pointsSnap.val() || 0;
+
+      // 4. บวกแต้มรวมกัน
+      const totalPoints = webPoints + linePoints;
+
+      // 5. อัปเดตแต้มรวมใน Firestore และ Realtime Database
+      await db.collection('users').doc(user.uid).update({ points: totalPoints });
+      await rtdb.ref('users/' + lineUserId + '/points').set(totalPoints);
+
+      // 6. แสดงผลแต้มรวม
+      document.getElementById('userpoints').innerText = totalPoints;
+      statusDiv.innerText = 'เชื่อมบัญชี LINE อัตโนมัติสำเร็จ (แต้มรวม: ' + totalPoints + ')';
       statusDiv.style.color = 'green';
 
-      // ดึงข้อมูลแต้มจาก Realtime Database
-      const pointsSnap = await rtdb.ref('users/' + lineUserId + '/points').once('value');
-      const points = pointsSnap.val();
-      if (points !== null) {
-        document.getElementById('userpoints').innerText = points;
-      } else {
-        document.getElementById('userpoints').innerText = 'ไม่มีข้อมูลแต้ม';
-      }
-
-      // ดึงข้อมูลโปรไฟล์จาก Realtime Database (ถ้ามี)
+      // (ดึงข้อมูลโปรไฟล์จาก Realtime Database ถ้ามี)
       const profileSnap = await rtdb.ref('users/' + lineUserId + '/profile').once('value');
       const profile = profileSnap.val();
       if (profile) {
