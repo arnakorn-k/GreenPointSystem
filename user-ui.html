@@ -143,56 +143,56 @@
   });
 
   // ดึง lineUserId จาก query string
-const urlParams = new URLSearchParams(window.location.search);
-const lineUserId = urlParams.get('lineUserId');
+  const urlParams = new URLSearchParams(window.location.search);
+  const lineUserId = urlParams.get('lineUserId');
 
-// ฟังก์ชันตรวจสอบรูปแบบ LINE userId (ต้องขึ้นต้นด้วย 'U' และยาวประมาณ 10-33 ตัวอักษร)
-function isValidLineUserId(uid) {
-  return typeof uid === 'string' && /^U[a-zA-Z0-9]{9,32}$/.test(uid);
-}
-
-// ดึงข้อมูลชื่อผู้ใช้และแต้มจาก Realtime Database พร้อมแจ้งสถานะการเชื่อมต่อ
-async function fetchLineUserData(lineUserId) {
-  const statusDiv = document.getElementById('linkLineStatus');
-  if (!isValidLineUserId(lineUserId)) {
-    statusDiv.innerText = 'LINE User ID ไม่ถูกต้อง กรุณาตรวจสอบลิงก์หรือสอบถามแอดมิน';
-    statusDiv.style.color = 'red';
-    return;
+  // ฟังก์ชันตรวจสอบรูปแบบ LINE userId (ต้องขึ้นต้นด้วย 'U' และยาวประมาณ 10-33 ตัวอักษร)
+  function isValidLineUserId(uid) {
+    return typeof uid === 'string' && /^U[a-zA-Z0-9]{9,32}$/.test(uid);
   }
-  try {
-    // ดึงแต้ม
-    const pointsSnap = await rtdb.ref('users/' + lineUserId + '/points').once('value');
-    const points = pointsSnap.val();
 
-    // ดึงชื่อผู้ใช้และอีเมล
-    const profileSnap = await rtdb.ref('users/' + lineUserId + '/profile').once('value');
-    const profile = profileSnap.val();
-
-    document.getElementById('userpoints').innerText = points !== null ? points : '0';
-    document.getElementById('username').innerText = profile && profile.displayName ? profile.displayName : '-';
-    document.getElementById('useremail').innerText = profile && profile.email ? profile.email : '-';
-
-    if (points === null && (!profile || !profile.displayName)) {
-      statusDiv.innerText = 'ไม่พบข้อมูลผู้ใช้หรือแต้มในระบบ กรุณาตรวจสอบการเชื่อมต่อบัญชี LINE';
+  // ดึงข้อมูลชื่อผู้ใช้และแต้มจาก Realtime Database พร้อมแจ้งสถานะการเชื่อมต่อ
+  async function fetchLineUserData(lineUserId) {
+    const statusDiv = document.getElementById('linkLineStatus');
+    if (!isValidLineUserId(lineUserId)) {
+      statusDiv.innerText = 'LINE User ID ไม่ถูกต้อง กรุณาตรวจสอบลิงก์หรือสอบถามแอดมิน';
       statusDiv.style.color = 'red';
       return;
     }
+    try {
+      // ดึงแต้ม
+      const pointsSnap = await rtdb.ref('users/' + lineUserId + '/points').once('value');
+      const points = pointsSnap.val();
 
-    statusDiv.innerText = 'เชื่อมต่อบัญชี LINE สำเร็จ';
-    statusDiv.style.color = 'green';
-  } catch (err) {
-    statusDiv.innerText = 'เกิดข้อผิดพลาด: ' + err.message;
-    statusDiv.style.color = 'red';
-    document.getElementById('userpoints').innerText = '-';
-    document.getElementById('username').innerText = '-';
-    document.getElementById('useremail').innerText = '-';
+      // ดึงชื่อผู้ใช้และอีเมล
+      const profileSnap = await rtdb.ref('users/' + lineUserId + '/profile').once('value');
+      const profile = profileSnap.val();
+
+      document.getElementById('userpoints').innerText = points !== null ? points : '0';
+      document.getElementById('username').innerText = profile && profile.displayName ? profile.displayName : '-';
+      document.getElementById('useremail').innerText = profile && profile.email ? profile.email : '-';
+
+      if (points === null && (!profile || !profile.displayName)) {
+        statusDiv.innerText = 'ไม่พบข้อมูลผู้ใช้หรือแต้มในระบบ กรุณาตรวจสอบการเชื่อมต่อบัญชี LINE';
+        statusDiv.style.color = 'red';
+        return;
+      }
+
+      statusDiv.innerText = 'เชื่อมต่อบัญชี LINE สำเร็จ';
+      statusDiv.style.color = 'green';
+    } catch (err) {
+      statusDiv.innerText = 'เกิดข้อผิดพลาด: ' + err.message;
+      statusDiv.style.color = 'red';
+      document.getElementById('userpoints').innerText = '-';
+      document.getElementById('username').innerText = '-';
+      document.getElementById('useremail').innerText = '-';
+    }
   }
-}
 
-// เรียกฟังก์ชันเมื่อหน้าเว็บโหลดและมี lineUserId
-if (lineUserId) {
-  fetchLineUserData(lineUserId);
-}
+  // เรียกฟังก์ชันเมื่อหน้าเว็บโหลดและมี lineUserId
+  if (lineUserId) {
+    fetchLineUserData(lineUserId);
+  }
 </script>
    </body>
 </html>
