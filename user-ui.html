@@ -146,14 +146,27 @@
 const urlParams = new URLSearchParams(window.location.search);
 const lineUserId = urlParams.get('lineUserId');
 
+// ฟังก์ชันตรวจสอบรูปแบบ LINE userId (ต้องขึ้นต้นด้วย 'U' และยาวประมาณ 10-33 ตัวอักษร)
+function isValidLineUserId(uid) {
+  return typeof uid === 'string' && /^U[a-zA-Z0-9]{9,32}$/.test(uid);
+}
+
 // ถ้ามี lineUserId ใน URL และผู้ใช้ล็อกอินอยู่ ให้เชื่อมบัญชีอัตโนมัติ
 auth.onAuthStateChanged(async (user) => {
   if (user && lineUserId) {
+    const statusDiv = document.getElementById('linkLineStatus');
+    if (!isValidLineUserId(lineUserId)) {
+      statusDiv.innerText = 'LINE User ID ไม่ถูกต้อง กรุณาตรวจสอบและลองใหม่';
+      statusDiv.style.color = 'red';
+      return;
+    }
     try {
       await db.collection('users').doc(user.uid).update({ lineUserId });
-      document.getElementById('linkLineStatus').innerText = 'เชื่อมบัญชี LINE อัตโนมัติสำเร็จ';
+      statusDiv.innerText = 'เชื่อมบัญชี LINE อัตโนมัติสำเร็จ (LINE User ID: ' + lineUserId + ')';
+      statusDiv.style.color = 'green';
     } catch (err) {
-      document.getElementById('linkLineStatus').innerText = 'เกิดข้อผิดพลาด: ' + err.message;
+      statusDiv.innerText = 'เกิดข้อผิดพลาด: ' + err.message;
+      statusDiv.style.color = 'red';
     }
   }
 });
