@@ -56,9 +56,29 @@
                      </li>
                   </ul>
                   <!-- เพิ่มปุ่มเข้าสู่ระบบและลงทะเบียนใน navbar -->
-                  <div class="login-register-btn d-flex">
-                     <div class="login_bt mr-2"><a href="login.html"><b>เข้าสู่ระบบ</b></a></div>
-                     <div class="started_bt"><a href="register.html"><b>ลงทะเบียน</b></a></div>
+                  <div class="started_bt d-flex justify-content-start align-items-center mt-2" style="margin-right: 50px;">
+                    <a
+                      href="https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=2006775772_ID&redirect_uri=YOUR_CALLBACK_URL&state=RANDOMSTATE123&scope=profile%20openid%20email"
+                      style="
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 1.1rem;
+                        padding: 10px 32px;
+                        border-radius: 12px;
+                        background: #ea4335;
+                        color: #fff;
+                        border: 2px solid #ea4335;
+                        text-decoration: none;
+                        font-weight: bold;
+                        min-width: 220px;
+                        min-height: 48px;
+                        text-align: center;
+                      "
+                      title="เชื่อมต่อบัญชี LINE"
+                    >
+                      เชื่อมต่อบัญชี LINE
+                    </a>
                   </div>
                </div>
             </nav>
