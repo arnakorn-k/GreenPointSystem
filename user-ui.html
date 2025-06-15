@@ -9,7 +9,7 @@
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <meta name="viewport" content="initial-scale=1, maximum-scale=1">
       <!-- site metas -->
-      <title>Arnakorn Kankaew</title>
+      <title>GreenPointSystem</title>
       <meta name="keywords" content="">
       <meta name="description" content="">
       <meta name="author" content="">
@@ -58,38 +58,30 @@
                   <div class="card shadow">
                      <div class="card-body text-center">
                         <h2 class="mb-4">ยินดีต้อนรับ <span id="username">-</span></h2>
-                        <b>ชื่อผู้ใช้:</b> <span id="username-detail">-</span><br>
+                        <b>ชื่อผู้ใช้:</b> <span id="username">-</span><br>
                         <b>แต้มสะสม:</b> <span id="userpoints">-</span>
                         <div id="linkLineStatus" style="margin-top:10px;"></div>
-                     </div>
-                  </div>
-               </div>
-            </div>
-         </div>
-      </div>
 
-<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 <script>
-  // 1. กำหนด config และ initialize Firebase
-   const firebaseConfig = {
-      apiKey: "AIzaSyDZqgA8SbUBPssIicdem2m81PSGtJNXKk8",
-      authDomain: "database-linebot-e6dd7.firebaseapp.com",
-      databaseURL: "https://database-linebot-e6dd7-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "database-linebot-e6dd7",
-      storageBucket: "database-linebot-e6dd7.appspot.com",
-      messagingSenderId: "802586703970",
-      appId: "1:802586703970:web:b25d6d693bfb7fea50393b",
-      measurementId: "G-55EH53SFG0"
+  // กำหนด config ของโปรเจคคุณ
+  const firebaseConfig = {
+   apiKey: "AIzaSyDZqgA8SbUBPssIicdem2m81PSGtJNXKk8",
+   authDomain: "database-linebot-e6dd7.firebaseapp.com",
+   databaseURL: "https://database-linebot-e6dd7-default-rtdb.asia-southeast1.firebasedatabase.app",
+   projectId: "database-linebot-e6dd7",
+   storageBucket: "database-linebot-e6dd7.firebasestorage.app",
+   messagingSenderId: "802586703970",
+   appId: "1:802586703970:web:b25d6d693bfb7fea50393b",
+   measurementId: "G-55EH53SFG0"
   };
   firebase.initializeApp(firebaseConfig);
   const rtdb = firebase.database();
 
-  // 2. ดึง lineUserId จาก query string
+  // ดึง lineUserId จาก query string
   const urlParams = new URLSearchParams(window.location.search);
   const lineUserId = urlParams.get('lineUserId');
-  console.log('lineUserId:', lineUserId);
 
   function isValidLineUserId(uid) {
     return typeof uid === 'string' && /^U[a-zA-Z0-9]{9,32}$/.test(uid);
@@ -103,15 +95,16 @@
       return;
     }
     try {
+      // ดึงแต้ม
       const pointsSnap = await rtdb.ref('users/' + lineUserId + '/points').once('value');
       const points = pointsSnap.val();
 
+      // ดึงชื่อผู้ใช้
       const profileSnap = await rtdb.ref('users/' + lineUserId + '/profile/displayName').once('value');
       const displayName = profileSnap.val();
 
       document.getElementById('userpoints').innerText = points !== null ? points : '0';
       document.getElementById('username').innerText = displayName ? displayName : '-';
-      document.getElementById('username-detail').innerText = displayName ? displayName : '-';
 
       if (points === null && !displayName) {
         statusDiv.innerText = 'ไม่พบข้อมูลผู้ใช้หรือแต้มในระบบ กรุณาตรวจสอบการเชื่อมต่อบัญชี LINE';
@@ -126,7 +119,6 @@
       statusDiv.style.color = 'red';
       document.getElementById('userpoints').innerText = '-';
       document.getElementById('username').innerText = '-';
-      document.getElementById('username-detail').innerText = '-';
     }
   }
 
@@ -134,5 +126,11 @@
     fetchLineUserData(lineUserId);
   }
 </script>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
 </body>
 </html>
