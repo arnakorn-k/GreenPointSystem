@@ -58,9 +58,9 @@
                   <div class="card shadow">
                      <div class="card-body text-center">
                         <img src="images/user.png" alt="User Avatar" class="rounded-circle mb-3" width="100" height="100">
-                        <h3 class="mb-2">ชื่อผู้ใช้: <span id="username">Arnakorn Kankaew</span></h3>
-                        <p class="mb-1">อีเมล: <span id="useremail">gps@email.com</span></p>
-                        <p class="mb-3">แต้มสะสม: <span id="userpoints">120</span> แต้ม</p>
+                        <h3 class="mb-2">ชื่อผู้ใช้: <span id="username">-</span></h3>
+                        <p class="mb-1">อีเมล: <span id="useremail">-</span></p>
+                        <p class="mb-3">แต้มสะสม: <span id="userpoints">-</span> แต้ม</p>
                         <a href="#" class="btn btn-success mb-2">ดูรายละเอียดแต้ม</a>
                         <a href="index.html" class="btn btn-outline-danger">ออกจากระบบ</a>
                      </div>
@@ -164,20 +164,20 @@ async function fetchLineUserData(lineUserId) {
     const pointsSnap = await rtdb.ref('users/' + lineUserId + '/points').once('value');
     const points = pointsSnap.val();
 
-    // ดึงชื่อผู้ใช้
-    const profileSnap = await rtdb.ref('users/' + lineUserId + '/profile/displayName').once('value');
-    const displayName = profileSnap.val();
+    // ดึงชื่อผู้ใช้และอีเมล
+    const profileSnap = await rtdb.ref('users/' + lineUserId + '/profile').once('value');
+    const profile = profileSnap.val();
 
-    if (points === null && !displayName) {
+    document.getElementById('userpoints').innerText = points !== null ? points : '0';
+    document.getElementById('username').innerText = profile && profile.displayName ? profile.displayName : '-';
+    document.getElementById('useremail').innerText = profile && profile.email ? profile.email : '-';
+
+    if (points === null && (!profile || !profile.displayName)) {
       statusDiv.innerText = 'ไม่พบข้อมูลผู้ใช้หรือแต้มในระบบ กรุณาตรวจสอบการเชื่อมต่อบัญชี LINE';
       statusDiv.style.color = 'red';
-      document.getElementById('userpoints').innerText = '-';
-      document.getElementById('username').innerText = '-';
       return;
     }
 
-    document.getElementById('userpoints').innerText = points !== null ? points : '0';
-    document.getElementById('username').innerText = displayName || '-';
     statusDiv.innerText = 'เชื่อมต่อบัญชี LINE สำเร็จ';
     statusDiv.style.color = 'green';
   } catch (err) {
@@ -185,6 +185,7 @@ async function fetchLineUserData(lineUserId) {
     statusDiv.style.color = 'red';
     document.getElementById('userpoints').innerText = '-';
     document.getElementById('username').innerText = '-';
+    document.getElementById('useremail').innerText = '-';
   }
 }
 
