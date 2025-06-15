@@ -58,8 +58,9 @@
                   <div class="card shadow">
                      <div class="card-body text-center">
                         <h2 class="mb-4">ยินดีต้อนรับ คุณ<span id="username">-</span> </h2>
-                        <h3 class="mb-2">ชื่อผู้ใช้: <span id="username">-</span></h3>
-                        <p class="mb-3">แต้มสะสม: <span id="userpoints">-</span> แต้ม</p>
+                        <b>ชื่อผู้ใช้:</b> <span id="username">-</span><br>
+                        <b>แต้มสะสม:</b> <span id="userpoints">-</span>
+                        <div id="linkLineStatus" style="margin-top:10px;"></div>
                      </div>
                   </div>
                </div>
@@ -142,15 +143,14 @@
       const pointsSnap = await rtdb.ref('users/' + lineUserId + '/points').once('value');
       const points = pointsSnap.val();
 
-      // ดึงชื่อผู้ใช้และอีเมล
-      const profileSnap = await rtdb.ref('users/' + lineUserId + '/profile').once('value');
-      const profile = profileSnap.val();
+      // ดึงชื่อผู้ใช้
+      const profileSnap = await rtdb.ref('users/' + lineUserId + '/profile/displayName').once('value');
+      const displayName = profileSnap.val();
 
       document.getElementById('userpoints').innerText = points !== null ? points : '0';
-      document.getElementById('username').innerText = profile && profile.displayName ? profile.displayName : '-';
-      document.getElementById('useremail').innerText = profile && profile.email ? profile.email : '-';
+      document.getElementById('username').innerText = displayName ? displayName : '-';
 
-      if (points === null && (!profile || !profile.displayName)) {
+      if (points === null && !displayName) {
         statusDiv.innerText = 'ไม่พบข้อมูลผู้ใช้หรือแต้มในระบบ กรุณาตรวจสอบการเชื่อมต่อบัญชี LINE';
         statusDiv.style.color = 'red';
         return;
@@ -163,7 +163,6 @@
       statusDiv.style.color = 'red';
       document.getElementById('userpoints').innerText = '-';
       document.getElementById('username').innerText = '-';
-      document.getElementById('useremail').innerText = '-';
     }
   }
 
