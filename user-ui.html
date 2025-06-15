@@ -99,9 +99,9 @@
       const pointsSnap = await rtdb.ref('users/' + lineUserId + '/points').once('value');
       const points = pointsSnap.val();
 
-      // ดึงชื่อผู้ใช้
-      const profileSnap = await rtdb.ref('users/' + lineUserId + '/profile/displayName').once('value');
-      const displayName = profileSnap.val();
+      // ดึงชื่อผู้ใช้ (field: name)
+      const nameSnap = await rtdb.ref('users/' + lineUserId + '/name').once('value');
+      const displayName = nameSnap.val();
 
       document.getElementById('userpoints').innerText = points !== null ? points : '0';
       document.getElementById('username').innerText = displayName ? displayName : '-';
