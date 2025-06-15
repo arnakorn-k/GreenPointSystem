@@ -57,80 +57,44 @@
                <div class="col-md-6">
                   <div class="card shadow">
                      <div class="card-body text-center">
-                        <h2 class="mb-4">ยินดีต้อนรับ คุณ<span id="username">-</span> </h2>
-                        <b>ชื่อผู้ใช้:</b> <span id="username">-</span><br>
+                        <h2 class="mb-4">ยินดีต้อนรับ <span id="username">-</span></h2>
+                        <b>ชื่อผู้ใช้:</b> <span id="username-detail">-</span><br>
                         <b>แต้มสะสม:</b> <span id="userpoints">-</span>
                         <div id="linkLineStatus" style="margin-top:10px;"></div>
                      </div>
                   </div>
                </div>
             </div>
-      <!-- footer section -->
-      <div class="footer_section_login layout_padding">
+         </div>
       </div>
-      <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 <script>
-  // ใส่ config ของคุณเอง
-  const firebaseConfig = {
-    apiKey: "AIzaSyBDtPJ-Ry2bq9VOW5xnb9-KcU3j1WyRf08",
-    authDomain: "db-web-abd17.firebaseapp.com",
-    projectId: "db-web-abd17",
-    storageBucket: "db-web-abd17.appspot.com",
-    messagingSenderId: "170462602610",
-    appId: "1:170462602610:web:9d1900292e157fcb14e9eb",
-    measurementId: "G-NKN1E3BMHG",
-    databaseURL: "https://db-web-abd17-default-rtdb.firebaseio.com"
+  // 1. กำหนด config และ initialize Firebase
+   const firebaseConfig = {
+      apiKey: "AIzaSyDZqgA8SbUBPssIicdem2m81PSGtJNXKk8",
+      authDomain: "database-linebot-e6dd7.firebaseapp.com",
+      databaseURL: "https://database-linebot-e6dd7-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "database-linebot-e6dd7",
+      storageBucket: "database-linebot-e6dd7.appspot.com",
+      messagingSenderId: "802586703970",
+      appId: "1:802586703970:web:b25d6d693bfb7fea50393b",
+      measurementId: "G-55EH53SFG0"
   };
   firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
   const rtdb = firebase.database();
 
-  // ฟอร์มเชื่อมบัญชี LINE
-  document.getElementById('linkLineForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const lineUserId = document.getElementById('lineUserId').value.trim();
-    const user = auth.currentUser;
-    if (!user) {
-      document.getElementById('linkLineStatus').innerText = 'กรุณาเข้าสู่ระบบ';
-      return;
-    }
-    try {
-      await db.collection('users').doc(user.uid).update({ lineUserId });
-      document.getElementById('linkLineStatus').innerText = 'เชื่อมบัญชี LINE สำเร็จ';
-    } catch (err) {
-      document.getElementById('linkLineStatus').innerText = 'เกิดข้อผิดพลาด: ' + err.message;
-    }
-  });
-
-  // ตัวอย่าง: ดึงแต้มจาก Realtime Database ด้วย lineUserId
-  auth.onAuthStateChanged(async (user) => {
-    if (user) {
-      const userDoc = await db.collection('users').doc(user.uid).get();
-      const lineUserId = userDoc.data().lineUserId;
-      if (lineUserId) {
-        const pointsSnap = await rtdb.ref('users/' + lineUserId + '/points').once('value');
-        const points = pointsSnap.val();
-        if (points !== null) {
-          document.getElementById('userpoints').innerText = points;
-        }
-      }
-    }
-  });
-
-  // ดึง lineUserId จาก query string
+  // 2. ดึง lineUserId จาก query string
   const urlParams = new URLSearchParams(window.location.search);
   const lineUserId = urlParams.get('lineUserId');
+  console.log('lineUserId:', lineUserId);
 
-  // ฟังก์ชันตรวจสอบรูปแบบ LINE userId (ต้องขึ้นต้นด้วย 'U' และยาวประมาณ 10-33 ตัวอักษร)
   function isValidLineUserId(uid) {
     return typeof uid === 'string' && /^U[a-zA-Z0-9]{9,32}$/.test(uid);
   }
 
-  // ดึงข้อมูลชื่อผู้ใช้และแต้มจาก Realtime Database พร้อมแจ้งสถานะการเชื่อมต่อ
   async function fetchLineUserData(lineUserId) {
     const statusDiv = document.getElementById('linkLineStatus');
     if (!isValidLineUserId(lineUserId)) {
@@ -139,16 +103,15 @@
       return;
     }
     try {
-      // ดึงแต้ม
       const pointsSnap = await rtdb.ref('users/' + lineUserId + '/points').once('value');
       const points = pointsSnap.val();
 
-      // ดึงชื่อผู้ใช้
       const profileSnap = await rtdb.ref('users/' + lineUserId + '/profile/displayName').once('value');
       const displayName = profileSnap.val();
 
       document.getElementById('userpoints').innerText = points !== null ? points : '0';
       document.getElementById('username').innerText = displayName ? displayName : '-';
+      document.getElementById('username-detail').innerText = displayName ? displayName : '-';
 
       if (points === null && !displayName) {
         statusDiv.innerText = 'ไม่พบข้อมูลผู้ใช้หรือแต้มในระบบ กรุณาตรวจสอบการเชื่อมต่อบัญชี LINE';
@@ -163,13 +126,13 @@
       statusDiv.style.color = 'red';
       document.getElementById('userpoints').innerText = '-';
       document.getElementById('username').innerText = '-';
+      document.getElementById('username-detail').innerText = '-';
     }
   }
 
-  // เรียกฟังก์ชันเมื่อหน้าเว็บโหลดและมี lineUserId
   if (lineUserId) {
     fetchLineUserData(lineUserId);
   }
 </script>
-   </body>
+</body>
 </html>
