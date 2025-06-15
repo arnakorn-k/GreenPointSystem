@@ -151,11 +151,11 @@ function isValidLineUserId(uid) {
   return typeof uid === 'string' && /^U[a-zA-Z0-9]{9,32}$/.test(uid);
 }
 
-// ดึงข้อมูลชื่อผู้ใช้และแต้มจาก Realtime Database
+// ดึงข้อมูลชื่อผู้ใช้และแต้มจาก Realtime Database พร้อมแจ้งสถานะการเชื่อมต่อ
 async function fetchLineUserData(lineUserId) {
   const statusDiv = document.getElementById('linkLineStatus');
   if (!isValidLineUserId(lineUserId)) {
-    statusDiv.innerText = 'LINE User ID ไม่ถูกต้อง';
+    statusDiv.innerText = 'LINE User ID ไม่ถูกต้อง กรุณาตรวจสอบลิงก์หรือสอบถามแอดมิน';
     statusDiv.style.color = 'red';
     return;
   }
@@ -163,18 +163,28 @@ async function fetchLineUserData(lineUserId) {
     // ดึงแต้ม
     const pointsSnap = await rtdb.ref('users/' + lineUserId + '/points').once('value');
     const points = pointsSnap.val();
-    document.getElementById('userpoints').innerText = points !== null ? points : '0';
 
     // ดึงชื่อผู้ใช้
     const profileSnap = await rtdb.ref('users/' + lineUserId + '/profile/displayName').once('value');
-    const displayName = profileSnap.val() || '-';
-    document.getElementById('username').innerText = displayName;
+    const displayName = profileSnap.val();
 
-    statusDiv.innerText = 'ดึงข้อมูลจาก LINE สำเร็จ';
+    if (points === null && !displayName) {
+      statusDiv.innerText = 'ไม่พบข้อมูลผู้ใช้หรือแต้มในระบบ กรุณาตรวจสอบการเชื่อมต่อบัญชี LINE';
+      statusDiv.style.color = 'red';
+      document.getElementById('userpoints').innerText = '-';
+      document.getElementById('username').innerText = '-';
+      return;
+    }
+
+    document.getElementById('userpoints').innerText = points !== null ? points : '0';
+    document.getElementById('username').innerText = displayName || '-';
+    statusDiv.innerText = 'เชื่อมต่อบัญชี LINE สำเร็จ';
     statusDiv.style.color = 'green';
   } catch (err) {
     statusDiv.innerText = 'เกิดข้อผิดพลาด: ' + err.message;
     statusDiv.style.color = 'red';
+    document.getElementById('userpoints').innerText = '-';
+    document.getElementById('username').innerText = '-';
   }
 }
 
