@@ -126,7 +126,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
   try {
     await auth.signInWithEmailAndPassword(email, password);
     alert('ล็อกอินสำเร็จ');
-    window.location.href = 'index.html';
+    window.location.href = 'user-ui.html'; // เปลี่ยนไปหน้าผู้ใช้
   } catch (error) {
     alert('อีเมลหรือรหัสผ่านไม่ถูกต้อง');
   }

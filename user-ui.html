@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="th">
+   <head>
+      <!-- basic -->
+      <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <!-- mobile metas -->
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+      <!-- site metas -->
+      <title>Arnakorn Kankaew</title>
+      <meta name="keywords" content="">
+      <meta name="description" content="">
+      <meta name="author" content="">
+      <!-- bootstrap css -->
+      <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+      <!-- style css -->
+      <link rel="stylesheet" type="text/css" href="css/style.css">
+      <!-- Responsive-->
+      <link rel="stylesheet" href="css/responsive.css">
+      <!-- fevicon -->
+      <link rel="icon" href="images/fevicon.png" type="image/gif" />
+      <!-- font css -->
+      <link href="https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+      <!-- Scrollbar Custom CSS -->
+      <link rel="stylesheet" href="css/jquery.mCustomScrollbar.min.css">
+      <!-- Tweaks for older IEs-->
+      <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
+   </head>
+<body class="login-page">
+      <div class="login-page">
+         <div class="container-fluid">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+               <a class="navbar-brand"href="index.html" style="color: #fff;" ><b>GreenPointSystem</b></a>
+               <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+               <span class="navbar-toggler-icon"></span>
+               </button>
+               <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                  <ul class="navbar-nav mr-auto">
+                     <li class="nav-item active">
+                        <a class="nav-link" href="index.html"><b>หน้าแรก</b></a>
+                     </li>
+                     <li class="nav-item">
+                        <a class="nav-link" href="index.html#about"><b>เกี่ยวกับเรา</b></a>
+                     </li>
+                     <li class="nav-item">
+                        <a class="nav-link" href="index.html#contact"><b>ติดต่อเรา</b></a>
+                     </li>
+                     <li class="nav-item">
+                        <a class="nav-link" href="DOC1-5/DOC_project.html"><b>โปรเจกต์</b></a>
+                     </li>
+                  </ul>
+               </div>
+            </nav>
+            <div class="row justify-content-center mt-5">
+               <div class="col-md-6">
+                  <div class="card shadow">
+                     <div class="card-body text-center">
+                        <img src="images/user.png" alt="User Avatar" class="rounded-circle mb-3" width="100" height="100">
+                        <h3 class="mb-2">ชื่อผู้ใช้: <span id="username">Arnakorn Kankaew</span></h3>
+                        <p class="mb-1">อีเมล: <span id="useremail">gps@email.com</span></p>
+                        <p class="mb-3">แต้มสะสม: <span id="userpoints">120</span> แต้ม</p>
+                        <a href="#" class="btn btn-success mb-2">ดูรายละเอียดแต้ม</a>
+                        <a href="index.html" class="btn btn-outline-danger">ออกจากระบบ</a>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <div class="row justify-content-center mt-4">
+               <div class="col-md-6">
+                  <div class="card">
+                     <div class="card-body">
+                        <h5 class="card-title">เชื่อมบัญชี LINE</h5>
+                        <form id="linkLineForm">
+                           <div class="form-group">
+                              <label for="lineUserId">LINE User ID</label>
+                              <input type="text" class="form-control" id="lineUserId" placeholder="วาง LINE User ID ที่ได้จากบอท">
+                           </div>
+                           <button type="submit" class="btn btn-success mt-2">เชื่อมบัญชี</button>
+                        </form>
+                        <div id="linkLineStatus" class="mt-2"></div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- footer section -->
+      <div class="footer_section_login layout_padding">
+      </div>
+      <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script>
+  // ใส่ config ของคุณเอง
+  const firebaseConfig = {
+    apiKey: "AIzaSyBDtPJ-Ry2bq9VOW5xnb9-KcU3j1WyRf08",
+    authDomain: "db-web-abd17.firebaseapp.com",
+    projectId: "db-web-abd17",
+    storageBucket: "db-web-abd17.appspot.com",
+    messagingSenderId: "170462602610",
+    appId: "1:170462602610:web:9d1900292e157fcb14e9eb",
+    measurementId: "G-NKN1E3BMHG",
+    databaseURL: "https://db-web-abd17-default-rtdb.firebaseio.com"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+  const rtdb = firebase.database();
+
+  // ฟอร์มเชื่อมบัญชี LINE
+  document.getElementById('linkLineForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const lineUserId = document.getElementById('lineUserId').value.trim();
+    const user = auth.currentUser;
+    if (!user) {
+      document.getElementById('linkLineStatus').innerText = 'กรุณาเข้าสู่ระบบ';
+      return;
+    }
+    try {
+      await db.collection('users').doc(user.uid).update({ lineUserId });
+      document.getElementById('linkLineStatus').innerText = 'เชื่อมบัญชี LINE สำเร็จ';
+    } catch (err) {
+      document.getElementById('linkLineStatus').innerText = 'เกิดข้อผิดพลาด: ' + err.message;
+    }
+  });
+
+  // ตัวอย่าง: ดึงแต้มจาก Realtime Database ด้วย lineUserId
+  auth.onAuthStateChanged(async (user) => {
+    if (user) {
+      const userDoc = await db.collection('users').doc(user.uid).get();
+      const lineUserId = userDoc.data().lineUserId;
+      if (lineUserId) {
+        const pointsSnap = await rtdb.ref('users/' + lineUserId + '/points').once('value');
+        const points = pointsSnap.val();
+        if (points !== null) {
+          document.getElementById('userpoints').innerText = points;
+        }
+      }
+    }
+  });
+
+  // ดึง lineUserId จาก query string
+const urlParams = new URLSearchParams(window.location.search);
+const lineUserId = urlParams.get('lineUserId');
+
+// ถ้ามี lineUserId ใน URL และผู้ใช้ล็อกอินอยู่ ให้เชื่อมบัญชีอัตโนมัติ
+auth.onAuthStateChanged(async (user) => {
+  if (user && lineUserId) {
+    try {
+      await db.collection('users').doc(user.uid).update({ lineUserId });
+      document.getElementById('linkLineStatus').innerText = 'เชื่อมบัญชี LINE อัตโนมัติสำเร็จ';
+    } catch (err) {
+      document.getElementById('linkLineStatus').innerText = 'เกิดข้อผิดพลาด: ' + err.message;
+    }
+  }
+});
+</script>
+   </body>
+</html>
