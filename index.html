@@ -33,52 +33,65 @@
       <div class="header_section">
          <div class="container-fluid">
             <nav class="navbar navbar-expand-lg navbar-light bg-light">
-               <a class="navbar-brand"href="index.html" style="color: #fff;" ><b>GreenPointSystem</b></a>
-               <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-               <span class="navbar-toggler-icon"></span>
-               </button>
-               <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                  <!-- เมนู navbar -->
-                  <ul class="navbar-nav mr-auto">
-                     <li class="nav-item active">
-                        <a class="nav-link" href="index.html"><b>หน้าแรก</b></a>
-                     </li>
-                     <li class="nav-item">
-                        <!-- เปลี่ยน href เป็น #about เพื่อเลื่อนลงไปยังหัวข้อเกี่ยวกับเรา -->
-                        <a class="nav-link" href="#about"><b>เกี่ยวกับเรา</b></a>
-                     </li>
-                     <li class="nav-item">
-                        <!-- เปลี่ยน href เป็น #contact เพื่อเลื่อนลงไปยังหัวข้อติดต่อเรา -->
-                        <a class="nav-link" href="#contact"><b>ติดต่อเรา</b></a>
-                     </li>
-                     <li class="nav-item">
-                        <a class="nav-link" href="DOC1-5/DOC_project.html"><b>โปรเจกต์</b></a>
-                     </li>
-                  </ul>
-                  <!-- เพิ่มปุ่มเข้าสู่ระบบและลงทะเบียนใน navbar -->
-                  <div class="started_bt d-flex justify-content-start align-items-center mt-2" style="margin-right: 50px;">
-                    <a
-                      href="https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=2007575934&redirect_uri=https://line-bot-navy.vercel.app/line-callback&state=RANDOMSTATE123&scope=profile%20openid%20email"
-                      style="
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-size: 1.1rem;
-                        padding: 10px 32px;
-                        border-radius: 12px;
-                        background: #ea4335;
-                        color: #fff;
-                        border: 2px solid #ea4335;
-                        text-decoration: none;
-                        font-weight: bold;
-                        min-width: 220px;
-                        min-height: 48px;
-                        text-align: center;
-                      "
-                      title="เชื่อมต่อบัญชี LINE"
-                    >
-                      เชื่อมต่อบัญชี LINE
-                    </a>
+               <div class="container-fluid">
+                  <a class="navbar-brand"href="index.html" style="color: #fff;" ><b>GreenPointSystem</b></a>
+                  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon"></span>
+                  </button>
+                  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                     <!-- เมนู navbar -->
+                     <ul class="navbar-nav mr-auto">
+                        <li class="nav-item active">
+                           <a class="nav-link" href="index.html"><b>หน้าแรก</b></a>
+                        </li>
+                        <li class="nav-item">
+                           <!-- เปลี่ยน href เป็น #about เพื่อเลื่อนลงไปยังหัวข้อเกี่ยวกับเรา -->
+                           <a class="nav-link" href="#about"><b>เกี่ยวกับเรา</b></a>
+                        </li>
+                        <li class="nav-item">
+                           <!-- เปลี่ยน href เป็น #contact เพื่อเลื่อนลงไปยังหัวข้อติดต่อเรา -->
+                           <a class="nav-link" href="#contact"><b>ติดต่อเรา</b></a>
+                        </li>
+                        <li class="nav-item">
+                           <a class="nav-link" href="DOC1-5/DOC_project.html"><b>โปรเจกต์</b></a>
+                        </li>
+                     </ul>
+                     <!-- เพิ่มปุ่มเข้าสู่ระบบและลงทะเบียนใน navbar -->
+                     <div class="d-flex align-items-center ms-auto" style="gap: 16px;">
+                        <a
+                          href="https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=2007575934&redirect_uri=https://line-bot-navy.vercel.app/line-callback&state=RANDOMSTATE123&scope=profile%20openid%20email"
+                          class="btn"
+                          style="
+                            background: #ea4335;
+                            color: #fff;
+                            border-radius: 12px;
+                            font-weight: bold;
+                            min-width: 150px;
+                            padding: 10px 20px;
+                            margin: 0;
+                          "
+                          title="เชื่อมต่อบัญชี LINE"
+                        >
+                          เชื่อมต่อบัญชี LINE
+                        </a>
+                        <a
+                          href="https://line.me/R/ti/p/%40617wfpts"
+                          target="_blank"
+                          class="btn"
+                          style="
+                            background: #06c755;
+                            color: #fff;
+                            border-radius: 12px;
+                            font-weight: bold;
+                            min-width: 150px;
+                            padding: 10px 20px;
+                            margin: 0;
+                          "
+                          title="เพิ่มเพื่อนผ่าน LINE"
+                        >
+                          เพิ่มเพื่อนผ่าน LINE
+                        </a>
+                     </div>
                   </div>
                </div>
             </nav>
@@ -318,5 +331,19 @@ auth.onAuthStateChanged(async function(user) {
 });
 </script>
 <span id="welcome"></span>
+<style>
+@media (max-width: 576px) {
+  .navbar .d-flex.align-items-center {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+  .navbar .d-flex.align-items-center a {
+    min-width: 100% !important;
+    font-size: 1rem !important;
+    padding: 10px 0 !important;
+  }
+}
+</style>
    </body>
 </html>
