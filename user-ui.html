@@ -57,7 +57,7 @@
                <div class="col-md-6">
                   <div class="card shadow">
                      <div class="card-body text-center">
-                        <h2 class="mb-4">ยินดีต้อนรับ <span id="username">-</span></h2>
+                        <h2 class="mb-4">ยินดีต้อนรับ คุณ <span id="username-welcome">-</span></h2>
                         <b>ชื่อผู้ใช้:</b> <span id="username">-</span><br>
                         <b>แต้มสะสม:</b> <span id="userpoints">-</span>
                         <div id="linkLineStatus" style="margin-top:10px;"></div>
@@ -105,6 +105,7 @@
 
       document.getElementById('userpoints').innerText = points !== null ? points : '0';
       document.getElementById('username').innerText = displayName ? displayName : '-';
+      document.getElementById('username-welcome').innerText = displayName ? displayName : '-';
 
       if (points === null && !displayName) {
         statusDiv.innerText = 'ไม่พบข้อมูลผู้ใช้หรือแต้มในระบบ กรุณาตรวจสอบการเชื่อมต่อบัญชี LINE';
@@ -119,6 +120,7 @@
       statusDiv.style.color = 'red';
       document.getElementById('userpoints').innerText = '-';
       document.getElementById('username').innerText = '-';
+      document.getElementById('username-welcome').innerText = '-';
     }
   }
 
