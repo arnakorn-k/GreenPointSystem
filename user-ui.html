@@ -179,6 +179,14 @@
   if (lineUserId) {
     fetchLineUserData(lineUserId);
   }
+
+  document.getElementById('line-login-btn').addEventListener('click', function(e) {
+    e.preventDefault();
+    // ลบข้อมูล session/localStorage ที่เกี่ยวข้อง (ถ้ามี)
+    localStorage.removeItem('line_oauth_state');
+    // ไปหน้าแรก
+    window.location.href = 'index.html';
+  });
 </script>
                      </div>
                   </div>
