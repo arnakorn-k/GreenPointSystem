@@ -106,14 +106,29 @@
                </div>
             </nav>
             <div class="row justify-content-center mt-5">
-               <div class="col-12 col-sm-10 col-md-8 col-lg-6">
-                  <div class="card shadow">
-                     <div class="card-body text-center">
-                        <h2 class="mb-4">ยินดีต้อนรับ คุณ <span id="username-welcome">-</span></h2>
-                        <b>ชื่อผู้ใช้:</b> <span id="username">-</span><br>
-                        <b>แต้มสะสม:</b> <span id="userpoints">-</span>
-                        <div id="linkLineStatus" style="margin-top:10px;"></div>
-
+              <!-- คอลัมน์ซ้าย: ประวัติแต้ม -->
+              <div class="col-12 col-md-4 mb-4 mb-md-0">
+                <div class="card shadow-sm h-100">
+                  <div class="card-body">
+                    <h5 class="mb-3 text-success">ประวัติแต้ม</h5>
+                    <ul id="points-timeline" class="list-group" style="max-height:320px;overflow:auto;font-size:0.97rem;"></ul>
+                  </div>
+                </div>
+              </div>
+              <!-- คอลัมน์ขวา: ข้อมูลผู้ใช้ -->
+              <div class="col-12 col-md-8">
+                <div class="card shadow">
+                  <div class="card-body text-center">
+                    <h2 class="mb-4">ยินดีต้อนรับ คุณ <span id="username-welcome">-</span></h2>
+                    <b>ชื่อผู้ใช้:</b> <span id="username">-</span><br>
+                    <b>แต้มสะสม:</b> <span id="userpoints">-</span>
+                    <div id="linkLineStatus" style="margin-top:10px;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+         </div>
+      </div>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 <script>
@@ -147,17 +162,40 @@
       return;
     }
     try {
-      // ดึงแต้ม
+      // แต้มและชื่อ
       const pointsSnap = await rtdb.ref('users/' + lineUserId + '/points').once('value');
       const points = pointsSnap.val();
-
-      // ดึงชื่อผู้ใช้ (field: name)
       const nameSnap = await rtdb.ref('users/' + lineUserId + '/name').once('value');
       const displayName = nameSnap.val();
 
       document.getElementById('userpoints').innerText = points !== null ? points : '0';
       document.getElementById('username').innerText = displayName ? displayName : '-';
       document.getElementById('username-welcome').innerText = displayName ? displayName : '-';
+
+      // ดึงประวัติแต้ม
+      const timelineUl = document.getElementById('points-timeline');
+      timelineUl.innerHTML = '<li class="list-group-item text-muted">กำลังโหลด...</li>';
+      const historySnap = await rtdb.ref('users/' + lineUserId + '/points_history').orderByChild('timestamp').limitToLast(20).once('value');
+      const history = historySnap.val();
+      timelineUl.innerHTML = '';
+      if (history) {
+        // เรียงล่าสุดขึ้นก่อน
+        const items = Object.values(history).sort((a, b) => b.timestamp - a.timestamp);
+        items.forEach(item => {
+          const date = new Date(item.timestamp);
+          const dateStr = date.toLocaleString('th-TH', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+          const changeStr = item.change > 0 ? `<span style="color:green;">+${item.change}</span>` : `<span style="color:red;">${item.change}</span>`;
+          timelineUl.innerHTML += `<li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+              <b>${dateStr}</b><br>
+              <span>${item.note || ''}</span>
+            </div>
+            <div style="min-width:40px;text-align:right;">${changeStr}</div>
+          </li>`;
+        });
+      } else {
+        timelineUl.innerHTML = '<li class="list-group-item text-muted">ไม่มีประวัติแต้ม</li>';
+      }
 
       if (points === null && !displayName) {
         statusDiv.innerText = 'ไม่พบข้อมูลผู้ใช้หรือแต้มในระบบ กรุณาตรวจสอบการเชื่อมต่อบัญชี LINE';
@@ -173,6 +211,7 @@
       document.getElementById('userpoints').innerText = '-';
       document.getElementById('username').innerText = '-';
       document.getElementById('username-welcome').innerText = '-';
+      document.getElementById('points-timeline').innerHTML = '<li class="list-group-item text-danger">เกิดข้อผิดพลาดในการโหลดประวัติ</li>';
     }
   }
 
