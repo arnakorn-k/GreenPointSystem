@@ -127,116 +127,124 @@
                 </div>
               </div>
             </div>
+            <div>
+              <h3>ประวัติแต้มล่าสุด</h3>
+              <ul id="points-history-list"></ul>
+            </div>
          </div>
       </div>
+<!-- Firebase SDK (ใช้ v9 compat ชุดเดียว) -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 <script>
   // กำหนด config ของโปรเจคคุณ
   const firebaseConfig = {
-   apiKey: "AIzaSyDZqgA8SbUBPssIicdem2m81PSGtJNXKk8",
-   authDomain: "database-linebot-e6dd7.firebaseapp.com",
-   databaseURL: "https://database-linebot-e6dd7-default-rtdb.asia-southeast1.firebasedatabase.app",
-   projectId: "database-linebot-e6dd7",
-   storageBucket: "database-linebot-e6dd7.firebasestorage.app",
-   messagingSenderId: "802586703970",
-   appId: "1:802586703970:web:b25d6d693bfb7fea50393b",
-   measurementId: "G-55EH53SFG0"
+    apiKey: "AIzaSyDZqgA8SbUBPssIicdem2m81PSGtJNXKk8",
+    authDomain: "database-linebot-e6dd7.firebaseapp.com",
+    databaseURL: "https://database-linebot-e6dd7-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "database-linebot-e6dd7",
+    storageBucket: "database-linebot-e6dd7.firebasestorage.app",
+    messagingSenderId: "802586703970",
+    appId: "1:802586703970:web:b25d6d693bfb7fea50393b",
+    measurementId: "G-55EH53SFG0"
   };
   firebase.initializeApp(firebaseConfig);
   const rtdb = firebase.database();
 
-  // ดึง lineUserId จาก query string
-  const urlParams = new URLSearchParams(window.location.search);
-  const lineUserId = urlParams.get('lineUserId');
-
-  function isValidLineUserId(uid) {
-    return typeof uid === 'string' && /^U[a-zA-Z0-9]{9,32}$/.test(uid);
+  // อ่าน lineUserId จาก query string
+  function getLineUserId() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('lineUserId');
   }
 
+  // แสดงแต้มและชื่อผู้ใช้
   async function fetchLineUserData(lineUserId) {
     const statusDiv = document.getElementById('linkLineStatus');
-    if (!isValidLineUserId(lineUserId)) {
-      statusDiv.innerText = 'LINE User ID ไม่ถูกต้อง กรุณาตรวจสอบลิงก์หรือสอบถามแอดมิน';
-      statusDiv.style.color = 'red';
-      return;
-    }
     try {
       // แต้มและชื่อ
-      const pointsSnap = await rtdb.ref('users/' + lineUserId + '/points').once('value');
+      const [pointsSnap, nameSnap] = await Promise.all([
+        rtdb.ref('users/' + lineUserId + '/points').once('value'),
+        rtdb.ref('users/' + lineUserId + '/name').once('value')
+      ]);
       const points = pointsSnap.val();
-      const nameSnap = await rtdb.ref('users/' + lineUserId + '/name').once('value');
       const displayName = nameSnap.val();
 
       document.getElementById('userpoints').innerText = points !== null ? points : '0';
-      document.getElementById('username').innerText = displayName ? displayName : '-';
-      document.getElementById('username-welcome').innerText = displayName ? displayName : '-';
+      document.getElementById('username').innerText = displayName || '-';
+      document.getElementById('username-welcome').innerText = displayName || '-';
 
-      // ดึงประวัติแต้ม
+      // ประวัติแต้ม timeline
       const timelineUl = document.getElementById('points-timeline');
       timelineUl.innerHTML = '<li class="list-group-item text-muted">กำลังโหลด...</li>';
       const historySnap = await rtdb.ref('users/' + lineUserId + '/points_history').orderByChild('timestamp').limitToLast(20).once('value');
       const history = historySnap.val();
       timelineUl.innerHTML = '';
       if (history) {
-        // เรียงล่าสุดขึ้นก่อน
-        const items = Object.values(history).sort((a, b) => b.timestamp - a.timestamp);
-        items.forEach(item => {
-          const date = new Date(item.timestamp);
-          const dateStr = date.toLocaleString('th-TH', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-          const changeStr = item.change > 0 ? `<span style="color:green;">+${item.change}</span>` : `<span style="color:red;">${item.change}</span>`;
-          timelineUl.innerHTML += `<li class="list-group-item d-flex justify-content-between align-items-center">
-            <div>
-              <b>${dateStr}</b><br>
-              <span>${item.note || ''}</span>
-            </div>
-            <div style="min-width:40px;text-align:right;">${changeStr}</div>
-          </li>`;
-        });
+        Object.values(history)
+          .sort((a, b) => b.timestamp - a.timestamp)
+          .forEach(item => {
+            const dateStr = new Date(item.timestamp).toLocaleString('th-TH', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            const changeStr = item.change > 0 ? `<span style="color:green;">+${item.change}</span>` : `<span style="color:red;">${item.change}</span>`;
+            timelineUl.innerHTML += `<li class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <b>${dateStr}</b><br>
+                <span>${item.note || ''}</span>
+              </div>
+              <div style="min-width:40px;text-align:right;">${changeStr}</div>
+            </li>`;
+          });
       } else {
         timelineUl.innerHTML = '<li class="list-group-item text-muted">ไม่มีประวัติแต้ม</li>';
       }
 
-      if (points === null && !displayName) {
-        statusDiv.innerText = 'ไม่พบข้อมูลผู้ใช้หรือแต้มในระบบ กรุณาตรวจสอบการเชื่อมต่อบัญชี LINE';
-        statusDiv.style.color = 'red';
-        return;
+      // ประวัติแต้มล่าสุด (แบบสั้น)
+      const list = document.getElementById('points-history-list');
+      list.innerHTML = '';
+      if (history) {
+        Object.values(history)
+          .sort((a, b) => b.timestamp - a.timestamp)
+          .slice(0, 10)
+          .forEach(h => {
+            const date = new Date(h.timestamp).toLocaleString('th-TH');
+            const li = document.createElement('li');
+            li.textContent = `${date} : ${h.change > 0 ? '+' : ''}${h.change} (${h.note || ''})`;
+            list.appendChild(li);
+          });
+      } else {
+        list.innerHTML = '<li>ยังไม่มีประวัติแต้ม</li>';
       }
 
       statusDiv.innerText = 'เชื่อมต่อบัญชี LINE สำเร็จ';
       statusDiv.style.color = 'green';
     } catch (err) {
-      statusDiv.innerText = 'เกิดข้อผิดพลาด: ' + err.message;
-      statusDiv.style.color = 'red';
       document.getElementById('userpoints').innerText = '-';
       document.getElementById('username').innerText = '-';
       document.getElementById('username-welcome').innerText = '-';
       document.getElementById('points-timeline').innerHTML = '<li class="list-group-item text-danger">เกิดข้อผิดพลาดในการโหลดประวัติ</li>';
+      document.getElementById('points-history-list').innerHTML = '<li>เกิดข้อผิดพลาด</li>';
+      statusDiv.innerText = 'เกิดข้อผิดพลาด: ' + err.message;
+      statusDiv.style.color = 'red';
     }
   }
 
-  if (lineUserId) {
-    fetchLineUserData(lineUserId);
+  // เรียกเมื่อโหลดหน้าเสร็จ
+  window.onload = function() {
+    const userId = getLineUserId();
+    if (userId) {
+      fetchLineUserData(userId);
+    } else {
+      document.getElementById('points-history-list').innerHTML = '<li>ไม่พบ lineUserId</li>';
+      document.getElementById('points-timeline').innerHTML = '<li class="list-group-item text-danger">ไม่พบ lineUserId</li>';
+    }
+    // ปุ่ม logout
+    document.getElementById('line-login-btn').addEventListener('click', function(e) {
+      e.preventDefault();
+      localStorage.removeItem('line_oauth_state');
+      sessionStorage.clear();
+      window.location.replace('index.html');
+    });
   }
-
-  document.getElementById('line-login-btn').addEventListener('click', function(e) {
-    e.preventDefault();
-    // ลบข้อมูล session/localStorage ที่เกี่ยวข้อง (ถ้ามี)
-    localStorage.removeItem('line_oauth_state');
-    // ลบข้อมูล sessionStorage ที่เกี่ยวข้อง (ถ้ามี)
-    sessionStorage.clear();
-    // เคลียร์ข้อมูลสำคัญอื่นๆ ถ้ามี
-    // ป้องกันการย้อนกลับมาหน้านี้
-    window.location.replace('index.html');
-    // หรือจะใช้ history.replaceState ก็ได้ (แต่ window.location.replace ปลอดภัยกว่า)
-  });
 </script>
-                     </div>
-                  </div>
-               </div>
-            </div>
-         </div>
-      </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"></script>
