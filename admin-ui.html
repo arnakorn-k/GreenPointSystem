@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin | เพิ่มแต้มผู้ใช้ LINE</title>
+  <link rel="stylesheet" href="css/bootstrap-grid.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container" style="max-width:500px;margin-top:40px;">
+    <h2>เพิ่มแต้มให้ผู้ใช้ LINE</h2>
+    <form id="addPointForm">
+      <div class="form-group">
+        <label for="userId">LINE User ID</label>
+        <input type="text" class="form-control" id="userId" required>
+      </div>
+      <div class="form-group">
+        <label for="points">จำนวนแต้ม (+/-)</label>
+        <input type="number" class="form-control" id="points" required>
+      </div>
+      <div class="form-group">
+        <label for="note">หมายเหตุ</label>
+        <input type="text" class="form-control" id="note" required>
+      </div>
+      <button type="submit" class="btn btn-success mt-2">เพิ่มแต้ม</button>
+    </form>
+    <div id="result" style="margin-top:20px;"></div>
+  </div>
+  <script>
+    document.getElementById('addPointForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const userId = document.getElementById('userId').value.trim();
+      const points = Number(document.getElementById('points').value);
+      const note = document.getElementById('note').value.trim();
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = 'กำลังดำเนินการ...';
+
+      try {
+        const res = await fetch('/admin/update-points', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId, points, note })
+        });
+        const data = await res.json();
+        if (data.success) {
+          resultDiv.innerHTML = '<span style="color:green;">เพิ่มแต้มสำเร็จ</span>';
+        } else {
+          resultDiv.innerHTML = '<span style="color:red;">' + (data.message || 'เกิดข้อผิดพลาด') + '</span>';
+        }
+      } catch (err) {
+        resultDiv.innerHTML = '<span style="color:red;">เกิดข้อผิดพลาด: ' + err.message + '</span>';
+      }
+    });
+  </script>
+</body>
+</html>
